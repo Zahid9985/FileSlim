@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileSlim – Smart File Resizer</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="bg-blobs">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon"><i class="ph-fill ph-scissors"></i></span>
+        <span class="logo-text">File<span class="accent">Slim</span></span>
+      </div>
+      <p class="tagline">Resize any image or PDF to your exact target size — right in your browser.</p>
+    </header>
+
+    <!-- Main Card -->
+    <main class="card">
+
+      <!-- Step 1: Upload -->
+      <section class="step" id="step-upload">
+        <div class="step-label"><span class="step-num">01</span> Upload Your File</div>
+
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon"><i class="ph-fill ph-cloud-arrow-up"></i></div>
+          <p class="drop-title">Drag & Drop your file here</p>
+          <p class="drop-sub">Supports JPG, PNG, WEBP, PDF</p>
+          <span class="drop-divider">or</span>
+          <label class="btn btn-outline" for="fileInput">
+            <i class="ph ph-folder-open"></i> Browse File
+          </label>
+          <input type="file" id="fileInput" accept="image/*,.pdf" hidden />
+        </div>
+
+        <!-- File Preview Card (hidden initially) -->
+        <div class="file-preview" id="filePreview">
+          <div class="preview-icon" id="previewIcon"></div>
+          <div class="preview-info">
+            <span class="preview-name" id="previewName">filename.jpg</span>
+            <span class="preview-meta" id="previewMeta">2.4 MB · Image</span>
+          </div>
+          <button class="remove-btn" id="removeBtn" title="Remove file">
+            <i class="ph ph-x-circle"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Divider -->
+      <div class="divider"><span>then</span></div>
+
+      <!-- Step 2: Target Size -->
+      <section class="step" id="step-size">
+        <div class="step-label"><span class="step-num">02</span> Select Target Size</div>
+
+        <div class="size-row">
+          <div class="size-input-wrap">
+            <i class="ph ph-arrows-in-simple size-icon"></i>
+            <input type="number" id="targetSize" placeholder="e.g. 200" min="1" />
+          </div>
+          <div class="unit-toggle">
+            <button class="unit-btn active" data-unit="KB">KB</button>
+            <button class="unit-btn" data-unit="MB">MB</button>
+          </div>
+        </div>
+
+        <div class="size-hints">
+          <span class="hint" data-kb="100">100 KB</span>
+          <span class="hint" data-kb="200">200 KB</span>
+          <span class="hint" data-kb="500">500 KB</span>
+          <span class="hint" data-kb="1024">1 MB</span>
+          <span class="hint" data-kb="2048">2 MB</span>
+        </div>
+      </section>
+
+      <!-- Divider -->
+      <div class="divider"><span>and</span></div>
+
+      <!-- Step 3: Resize -->
+      <section class="step" id="step-action">
+        <div class="step-label"><span class="step-num">03</span> Resize & Download</div>
+
+        <button class="btn btn-primary" id="resizeBtn" disabled>
+          <i class="ph ph-magic-wand"></i>
+          <span>Resize File</span>
+        </button>
+
+        <!-- Progress -->
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressFill"></div>
+          </div>
+          <span class="progress-text" id="progressText">Processing…</span>
+        </div>
+
+        <!-- Result -->
+        <div class="result-card" id="resultCard">
+          <div class="result-icon success"><i class="ph-fill ph-check-circle"></i></div>
+          <div class="result-info">
+            <span class="result-title">Resize Complete!</span>
+            <div class="result-stats">
+              <div class="stat">
+                <span class="stat-label">Original</span>
+                <span class="stat-val" id="origSize">—</span>
+              </div>
+              <div class="stat-arrow"><i class="ph ph-arrow-right"></i></div>
+              <div class="stat">
+                <span class="stat-label">Resized</span>
+                <span class="stat-val green" id="newSize">—</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-download" id="downloadBtn">
+            <i class="ph-fill ph-download-simple"></i> Download
+          </button>
+        </div>
+
+        <!-- Error -->
+        <div class="error-card" id="errorCard">
+          <i class="ph-fill ph-warning-circle"></i>
+          <span id="errorMsg">Something went wrong.</span>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>All processing happens <strong>locally in your browser</strong> — Created by ZAHID 🔒</p>
+    </footer>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
