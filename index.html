@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FileSlim – Smart File Resizer</title>
   <link rel="stylesheet" href="css/style.css" />
-  <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="icon" type="image/x-icon" href="cropped_circle_image.png">
 </head>
@@ -29,14 +26,28 @@
         <span class="logo-icon"><i class="ph-fill ph-scissors"></i></span>
         <span class="logo-text">File<span class="accent">Slim</span></span>
       </div>
-      <p class="tagline">Resize any image or PDF to your exact target size — right in your browser.</p>
+      <p class="tagline">Resize images & PDFs, or merge images into one PDF — all in your browser.</p>
     </header>
 
-    <!-- Main Card -->
-    <main class="card">
+    <!-- Mode Tabs -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="resize">
+        <i class="ph ph-arrows-in-simple"></i>
+        <span>Resize File</span>
+      </button>
+      <button class="mode-tab" data-mode="merge">
+        <i class="ph ph-images"></i>
+        <span>Images → PDF</span>
+      </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  MODE 1 : RESIZE                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <main class="card" id="panel-resize">
 
       <!-- Step 1: Upload -->
-      <section class="step" id="step-upload">
+      <section class="step">
         <div class="step-label"><span class="step-num">01</span> Upload Your File</div>
 
         <div class="drop-zone" id="dropZone">
@@ -50,7 +61,6 @@
           <input type="file" id="fileInput" accept="image/*,.pdf" hidden />
         </div>
 
-        <!-- File Preview Card (hidden initially) -->
         <div class="file-preview" id="filePreview">
           <div class="preview-icon" id="previewIcon"></div>
           <div class="preview-info">
@@ -63,12 +73,11 @@
         </div>
       </section>
 
-      <!-- Divider -->
       <div class="divider"><span>then</span></div>
 
       <!-- Step 2: Target Size -->
-      <section class="step" id="step-size">
-        <div class="step-label"><span class="step-num">02</span> Select Target Size</div>
+      <section class="step">
+        <div class="step-label"><span class="step-num">02</span> Set Target Size</div>
 
         <div class="size-row">
           <div class="size-input-wrap">
@@ -90,11 +99,10 @@
         </div>
       </section>
 
-      <!-- Divider -->
       <div class="divider"><span>and</span></div>
 
       <!-- Step 3: Resize -->
-      <section class="step" id="step-action">
+      <section class="step">
         <div class="step-label"><span class="step-num">03</span> Resize & Download</div>
 
         <button class="btn btn-primary" id="resizeBtn" disabled>
@@ -102,7 +110,6 @@
           <span>Resize File</span>
         </button>
 
-        <!-- Progress -->
         <div class="progress-wrap" id="progressWrap">
           <div class="progress-bar-track">
             <div class="progress-bar-fill" id="progressFill"></div>
@@ -110,7 +117,6 @@
           <span class="progress-text" id="progressText">Processing…</span>
         </div>
 
-        <!-- Result -->
         <div class="result-card" id="resultCard">
           <div class="result-icon success"><i class="ph-fill ph-check-circle"></i></div>
           <div class="result-info">
@@ -132,18 +138,148 @@
           </button>
         </div>
 
-        <!-- Error -->
         <div class="error-card" id="errorCard">
           <i class="ph-fill ph-warning-circle"></i>
           <span id="errorMsg">Something went wrong.</span>
         </div>
-
       </section>
     </main>
 
-    <!-- Footer -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  MODE 2 : IMAGES → PDF                      -->
+    <!-- ═══════════════════════════════════════════ -->
+    <main class="card hidden" id="panel-merge">
+
+      <!-- Step 1: Upload Images -->
+      <section class="step">
+        <div class="step-label"><span class="step-num">01</span> Add Images</div>
+
+        <div class="drop-zone" id="mergeDropZone">
+          <div class="drop-icon"><i class="ph-fill ph-images"></i></div>
+          <p class="drop-title">Drag & Drop images here</p>
+          <p class="drop-sub">JPG, PNG, WEBP — select multiple at once</p>
+          <span class="drop-divider">or</span>
+          <label class="btn btn-outline" for="mergeFileInput">
+            <i class="ph ph-folder-open"></i> Browse Images
+          </label>
+          <input type="file" id="mergeFileInput" accept="image/*" multiple hidden />
+        </div>
+
+        <!-- Image Queue List -->
+        <div class="img-queue" id="imgQueue"></div>
+
+        <!-- Queue Actions -->
+        <div class="queue-actions" id="queueActions" style="display:none">
+          <span class="queue-count" id="queueCount">0 images</span>
+          <button class="btn btn-outline btn-sm" id="clearAllBtn">
+            <i class="ph ph-trash"></i> Clear All
+          </button>
+        </div>
+      </section>
+
+      <div class="divider"><span>then</span></div>
+
+      <!-- Step 2: PDF Options -->
+      <section class="step">
+        <div class="step-label"><span class="step-num">02</span> PDF Options</div>
+
+        <div class="pdf-options">
+          <div class="option-row">
+            <label class="option-label">
+              <i class="ph ph-file-text"></i> Output filename
+            </label>
+            <input type="text" id="pdfFilename" class="option-input" placeholder="my_document" />
+            <span class="option-suffix">.pdf</span>
+          </div>
+
+          <div class="option-row">
+            <label class="option-label">
+              <i class="ph ph-rectangle"></i> Page size
+            </label>
+            <select id="pageSize" class="option-select">
+              <option value="fit">Fit to image (recommended)</option>
+              <option value="a4">A4 (210 × 297 mm)</option>
+              <option value="letter">Letter (216 × 279 mm)</option>
+            </select>
+          </div>
+
+          <div class="option-row">
+            <label class="option-label">
+              <i class="ph ph-star"></i> Image quality
+            </label>
+            <div class="quality-slider-wrap">
+              <input type="range" id="imgQuality" min="40" max="100" value="85" class="quality-slider" />
+              <span class="quality-val" id="qualityVal">85%</span>
+            </div>
+          </div>
+
+          <div class="option-row">
+            <label class="option-label">
+              <i class="ph ph-arrows-out-cardinal"></i> Orientation
+            </label>
+            <div class="orient-toggle">
+              <button class="orient-btn active" data-orient="auto">
+                <i class="ph ph-arrows-counter-clockwise"></i> Auto
+              </button>
+              <button class="orient-btn" data-orient="portrait">
+                <i class="ph ph-device-mobile"></i> Portrait
+              </button>
+              <button class="orient-btn" data-orient="landscape">
+                <i class="ph ph-monitor"></i> Landscape
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"><span>and</span></div>
+
+      <!-- Step 3: Convert -->
+      <section class="step">
+        <div class="step-label"><span class="step-num">03</span> Convert & Download</div>
+
+        <button class="btn btn-primary" id="mergeBtn" disabled>
+          <i class="ph ph-file-pdf"></i>
+          <span>Convert to PDF</span>
+        </button>
+
+        <div class="progress-wrap" id="mergeProgressWrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="mergeProgressFill"></div>
+          </div>
+          <span class="progress-text" id="mergeProgressText">Processing…</span>
+        </div>
+
+        <div class="result-card" id="mergeResultCard">
+          <div class="result-icon success"><i class="ph-fill ph-check-circle"></i></div>
+          <div class="result-info">
+            <span class="result-title">PDF Created!</span>
+            <div class="result-stats">
+              <div class="stat">
+                <span class="stat-label">Pages</span>
+                <span class="stat-val" id="mergePagesCount">—</span>
+              </div>
+              <div class="stat-arrow"><i class="ph ph-arrow-right"></i></div>
+              <div class="stat">
+                <span class="stat-label">PDF Size</span>
+                <span class="stat-val green" id="mergePdfSize">—</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-download" id="mergeDownloadBtn">
+            <i class="ph-fill ph-download-simple"></i> Download PDF
+          </button>
+        </div>
+
+        <div class="error-card" id="mergeErrorCard">
+          <i class="ph-fill ph-warning-circle"></i>
+          <span id="mergeErrorMsg">Something went wrong.</span>
+        </div>
+      </section>
+    </main>
+
     <footer class="footer">
-      <p>All processing happens <strong>locally in your browser</strong> — Created by ZAHID 🔒</p>
+      <p>All processing happens <strong>locally in your browser</strong> — Created by ZAHID. 🔒</p>
     </footer>
 
   </div>
